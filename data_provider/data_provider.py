@@ -72,7 +72,7 @@ class DataProvider:
                 df_bars = df_bars.select(
                     ["time", "open", "high", "low", "close", "tickvol", "vol", "spread"]
                 )
-                return df_bars
+                return df_bars.sort("time")
         except Exception as e:
             print(f"Can't get latest close bar {symbol:} {timeframe:}")
             print(e)
