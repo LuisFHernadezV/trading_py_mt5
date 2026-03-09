@@ -3,6 +3,11 @@ from data_provider.data_provider import DataProvider
 from queue import Queue
 from trading_director.trading_director import TradingDirector
 from signal_generator.signals.signal_ma_crossover import SignalMACrossover
+from position_sizer.position_sizer import PositionSizer
+from position_sizer.properties.position_sizer_properties import (
+    MinSizingProps,
+    FixedSizingProps,
+)
 
 
 def main():
@@ -23,11 +28,17 @@ def main():
         fast_period=fast_period,
         slow_period=slow_period,
     )
+    position_sizer = PositionSizer(
+        event_queue=event_queue,
+        data_provider=data_provider,
+        sizing_properties=FixedSizingProps(volume=0.09),
+    )
     # Create the trading director
     trading_director = TradingDirector(
         event_queue=event_queue,
         data_provider=data_provider,
         signal_generator=signal_generator,
+        position_sizer=position_sizer,
     )
     trading_director.execute()
 

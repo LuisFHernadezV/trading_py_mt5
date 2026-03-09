@@ -1,10 +1,11 @@
 from dataclasses import dataclass
+from position_sizer.position_sizer import PositionSizer
 from signal_generator.interfaces.signal_generator import ISignalGenerator
 from queue import Queue
 import queue
 from data_provider.data_provider import DataProvider
 from typing import Callable
-from event.event import DataEvent, SignalEvent
+from event.event import DataEvent, SignalEvent, SizingEvent
 import time
 from datetime import datetime
 
@@ -16,26 +17,36 @@ class TradingDirector:
     # Referencia de los diferentes módulos
     data_provider: DataProvider
     signal_generator: ISignalGenerator
+    position_sizer: PositionSizer
     continue_trading: bool = True
     # Gestionamos los eventos de tipo DataEvent
 
     def __post_init__(self):
         self.event_handler: dict[str, Callable] = {
-            "DATA": self._hanle_data_event,
-            "SIGNAL": self._hanle_signal_event,
+            "DATA": self._handle_data_event,
+            "SIGNAL": self._handle_signal_event,
+            "SIZE": self._handle_sizing_event,
         }
 
     def _deteprint(self) -> str:
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def _hanle_signal_event(self, event: SignalEvent) -> None:
+    def _handle_sizing_event(self, event: SizingEvent) -> None:
+        print(
+            f"{self._deteprint()} Received size event with volume: {event.volume} for {
+                event.signal
+            } in {event.symbol}"
+        )
+
+    def _handle_signal_event(self, event: SignalEvent) -> None:
         print(
             f"{self._deteprint()} Received signal event: {event.symbol} - {
                 event.signal
             }"
         )
+        self.position_sizer.size_signal(event, self.data_provider)
 
-    def _hanle_data_event(self, event: DataEvent) -> None:
+    def _handle_data_event(self, event: DataEvent) -> None:
         print(
             f"time consol: {self._deteprint()} time data event: {
                 self._deteprint()

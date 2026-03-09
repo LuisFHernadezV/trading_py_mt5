@@ -7,6 +7,7 @@ from pydantic import BaseModel
 class EventType(StrEnum):
     DATA = auto()
     SIGNAL = auto()
+    SIZIG = auto()
 
 
 class SignalType(StrEnum):
@@ -42,3 +43,15 @@ class SignalEvent(BaseEvent):
     magic_numbre: int
     stop_loss: float
     take_profit: float
+
+
+class SizingEvent(BaseEvent):
+    event_type: EventType = EventType.SIZIG
+    symbol: str
+    signal: SignalType
+    target_order: OrderType
+    target_price: float
+    magic_numbre: int
+    stop_loss: float
+    take_profit: float
+    volume: float
