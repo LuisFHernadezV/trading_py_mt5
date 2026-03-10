@@ -1,3 +1,4 @@
+from portfolio.portfolio import Portfolio
 from ..interfaces.signal_generator import ISignalGenerator
 from event.event import DataEvent
 from dataclasses import dataclass, field
@@ -11,6 +12,7 @@ import polars as pl
 class SignalMACrossover(ISignalGenerator):
     event_queue: Queue
     data_provider: DataProvider
+    portfolio: Portfolio
     timeframe: str
     fast_period: int
     slow_period: int
@@ -58,14 +60,17 @@ class SignalMACrossover(ISignalGenerator):
         # Recuperamos los datos para calcular las medias móviles
 
         df_ar_data = self.data_provider.get_latest_close_bars(symbol, timeframe)
+        open_positions = self.portfolio.get_number_of_strategy_opne_position_by_symbol(
+            symbol
+        )
         fasta_ma = df_ar_data.get_column("close").rolling_mean(self.fast_period).last()
         slowa_ma = df_ar_data.get_column("close").last()
         # Detectar cuando hay un cruese
         if isinstance(fasta_ma, float) and isinstance(slowa_ma, float):
-            if fasta_ma > slowa_ma:
+            if open_positions["LONG"] == 0 and fasta_ma > slowa_ma:
                 signal = SignalType.BUY
 
-            elif slowa_ma > fasta_ma:
+            elif open_positions["SHORT"] == 0 and slowa_ma > fasta_ma:
                 signal = SignalType.SELL
             else:
                 signal = None
@@ -76,7 +81,7 @@ class SignalMACrossover(ISignalGenerator):
                     signal=signal,
                     target_order=OrderType.MARKET,
                     target_price=0.0,
-                    magic_numbre=1234,
+                    magic_numbre=self.portfolio.magic_number,
                     stop_loss=0.0,
                     take_profit=0.0,
                 )

@@ -8,12 +8,14 @@ from position_sizer.properties.position_sizer_properties import (
     MinSizingProps,
     FixedSizingProps,
 )
+from portfolio.portfolio import Portfolio
 
 
 def main():
     symbols = ["EURUSD", "USDJPY"]  # , "SP500", "XAUUSD", "XTIUSD", "GBPUSD"]
     event_queue = Queue()
     timeframe = "1min"
+    magic_number = 1
     fast_period: int = 25
     slow_period: int = 50
 
@@ -21,12 +23,14 @@ def main():
     data_provider = DataProvider(
         event_queue=event_queue, symbols=symbols, timeframe=timeframe
     )
+    portfolio = Portfolio(magic_number=magic_number)
     signal_generator = SignalMACrossover(
         event_queue=event_queue,
         data_provider=data_provider,
         timeframe=timeframe,
         fast_period=fast_period,
         slow_period=slow_period,
+        portfolio=portfolio,
     )
     position_sizer = PositionSizer(
         event_queue=event_queue,
