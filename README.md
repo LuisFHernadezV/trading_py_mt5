@@ -18,7 +18,7 @@ TradingPy is a Python-based trading framework that integrates various components
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/tradingpy.git
+   git clone https://github.com/LuisFHernadezV/trading_py_mt5.git
    cd tradingpy
    ```
 
