@@ -2,6 +2,8 @@ import MetaTrader5 as mt5
 import os
 from dotenv import load_dotenv, find_dotenv
 import polars as pl
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 load_dotenv(find_dotenv())
 
@@ -16,3 +18,8 @@ mt5.initialize(
 
 
 mt5.positions_get()
+
+datetime.now(timezone.utc)
+
+
+datetime.now(ZoneInfo("Asia/Nicosia"))

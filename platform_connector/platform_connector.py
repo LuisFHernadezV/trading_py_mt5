@@ -28,13 +28,43 @@ class PlatformConnector:
 
 
         """
+
+        path = os.getenv("MT5_PATH")
+        if path is None:
+            raise Exception(f"Path not found {path=}")
+
+        login = os.getenv("MT5_LOGIN")
+        if login is None:
+            raise Exception(f"Login not found {login=}")
+        login = int(login)
+
+        password = os.getenv("MT5_PASSWORD")
+        if password is None:
+            raise Exception(f"Password not found {password=}")
+
+        server = os.getenv("MT5_SERVER")
+        if server is None:
+            raise Exception(f"Server not found {server=}")
+
+        timeout = os.getenv("MT5_TIMEOUT")
+        if timeout is None:
+            timeout = 30
+        else:
+            timeout = int(timeout)
+
+        portable = os.getenv("MT5_PORTABLE")
+        if portable is None:
+            portable = False
+        else:
+            portable = eval(portable)
+
         if mt5.initialize(
-            path=os.getenv("MT5_PATH"),
-            login=int(os.getenv("MT5_LOGIN")),
-            password=os.getenv("MT5_PASSWORD"),
-            server=os.getenv("MT5_SERVER"),
-            timeout=int(os.getenv("MT5_TIMEOUT")),
-            portable=eval(os.getenv("MT5_PORTABLE")),
+            path=path,
+            login=login,
+            password=password,
+            server=server,
+            timeout=timeout,
+            portable=portable,
         ):
             print("Platform successfully initialized")
         else:
@@ -49,7 +79,7 @@ class PlatformConnector:
         elif account_info.trade_mode == mt5.ACCOUNT_TRADE_MODE_REAL:
             if (
                 not input(
-                    "Warig account type real do you want to continue? (y/n)"
+                    "Waring account type real do you want to continue? (y/n)"
                 ).lower()
                 == "y"
             ):

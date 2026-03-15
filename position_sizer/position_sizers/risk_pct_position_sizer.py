@@ -3,7 +3,6 @@ from ..interfaces.position_sizer_interface import IPositionSizer
 from event.event import SignalEvent
 from ..properties.position_sizer_properties import RiskPctSizingProps
 import MetaTrader5 as mt5
-from utils.utils import Utils
 
 
 class RiskPctPositionSizer(IPositionSizer):
@@ -18,7 +17,7 @@ class RiskPctPositionSizer(IPositionSizer):
             return 0.0
 
         if signal_event.stop_loss <= 0:
-            print(f"Stop loss must be greater than 0 {size_signal.stop_loss}")
+            print(f"Stop loss must be greater than 0 {signal_event.stop_loss}")
             return 0.0
 
         account_info = mt5.account_info()

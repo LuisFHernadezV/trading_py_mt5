@@ -28,7 +28,7 @@ class Portfolio:
                 shorts += 1
         return {"longs": longs, "shorts": shorts}
 
-    def get_number_of_strategy_opne_position_by_symbol(
+    def get_number_of_strategy_open_position_by_symbol(
         self, symbol: str
     ) -> dict[str, int]:
         longs = 0

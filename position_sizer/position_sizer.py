@@ -4,7 +4,7 @@ from position_sizer.position_sizers.fixed_size_position_sizer import (
 )
 from position_sizer.position_sizers.min_size_position_sizer import MinSizePositionSizer
 from position_sizer.interfaces.position_sizer_interface import IPositionSizer
-from event.event import SignalEvent, SizingEvent, SizingEvent
+from event.event import SignalEvent, SizingEvent
 from data_provider.data_provider import DataProvider
 from queue import Queue
 import MetaTrader5 as mt5
@@ -32,7 +32,7 @@ class PositionSizer(IPositionSizer):
         self, sizing_props: BaseSizerProps
     ) -> IPositionSizer:
         """
-        Devuelve una instancia del position sizer apropiado en funcion del objeto de propiedades recibido
+        Devuelve una instancia del position sizer apropiado en función del objeto de propiedades recibido
         """
         if isinstance(sizing_props, MinSizingProps):
             return MinSizePositionSizer()
@@ -53,7 +53,7 @@ class PositionSizer(IPositionSizer):
                 signal=signal_event.signal,
                 target_order=signal_event.target_order,
                 target_price=signal_event.target_price,
-                magic_numbre=signal_event.magic_numbre,
+                magic_number=signal_event.magic_number,
                 stop_loss=signal_event.stop_loss,
                 take_profit=signal_event.take_profit,
                 volume=volume,
@@ -62,7 +62,7 @@ class PositionSizer(IPositionSizer):
 
     def size_signal(
         self, signal_event: SignalEvent, data_provider: DataProvider
-    ) -> float:
+    ) -> None:
         volume = self.position_size_method.size_signal(signal_event, self.data_provider)
 
         if volume < mt5.symbol_info(signal_event.symbol).volume_min:
@@ -70,4 +70,4 @@ class PositionSizer(IPositionSizer):
                 f"Error: Volume {volume} is less than min volume {signal_event.symbol}"
             )
 
-        return 0
+        return None
