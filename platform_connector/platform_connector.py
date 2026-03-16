@@ -1,123 +1,129 @@
-from dataclasses import dataclass
+# QUANTDEMY - https://quantdemy.com - Trading con Python y MetaTrader 5: Crea tu Propio Framework
+
+from utils.utils import Utils
 import MetaTrader5 as mt5
 import os
 from dotenv import load_dotenv, find_dotenv
 
+class PlatformConnector():
 
-@dataclass
-class PlatformConnector:
-    symbols: list[str]
+    def __init__(self, symbol_list: list):
+        """
+        Initializes the platform connector object.
 
-    def __post_init__(self) -> None:
-
+        Args:
+            symbol_list (list): List of symbols to be added to the MarketWatch.
+        """
+        
+        # Buscamos el archivo .env y cargamos sus valores
         load_dotenv(find_dotenv())
-        self._inicialize_platform()
-        # Comprobamos que el tipo de cuenta sea real
+
+        # Inicialización de la plataforma
+        self._initialize_platform()
+
+        # Comprobación del tipo de cuenta
         self._live_account_warning()
-        # Añadimos los símbolos a la lista de símbolos del marketwatch
-        self._add_symbols_to_marketwatch(self.symbols)
-        # Imprimimos la información de la cuenta
+
+        # Imprimimos información de la cuenta
         self._print_account_info()
 
-        # Comprobamos que el algoritmo de trading este habilitado
+        # Comprobación del trading algorítmico
         self._check_algo_trading_enabled()
 
-    def _inicialize_platform(self) -> None:
+        # Añadimos los símbolos al MarketWatch
+        self._add_symbols_to_marketwatch(symbol_list)
+
+    def _initialize_platform(self) -> None:
         """
-        Initialize the platform
+        Initializes the MT5 platform.
 
+        Raises:
+            Exception: If there is any error while initializing the Platform
 
+        Returns:
+            None
         """
-
-        path = os.getenv("MT5_PATH")
-        if path is None:
-            raise Exception(f"Path not found {path=}")
-
-        login = os.getenv("MT5_LOGIN")
-        if login is None:
-            raise Exception(f"Login not found {login=}")
-        login = int(login)
-
-        password = os.getenv("MT5_PASSWORD")
-        if password is None:
-            raise Exception(f"Password not found {password=}")
-
-        server = os.getenv("MT5_SERVER")
-        if server is None:
-            raise Exception(f"Server not found {server=}")
-
-        timeout = os.getenv("MT5_TIMEOUT")
-        if timeout is None:
-            timeout = 30
-        else:
-            timeout = int(timeout)
-
-        portable = os.getenv("MT5_PORTABLE")
-        if portable is None:
-            portable = False
-        else:
-            portable = eval(portable)
-
         if mt5.initialize(
-            path=path,
-            login=login,
-            password=password,
-            server=server,
-            timeout=timeout,
-            portable=portable,
-        ):
-            print("Platform successfully initialized")
+            path=os.getenv("MT5_PATH"),
+            login=int(os.getenv("MT5_LOGIN")),
+            password=os.getenv("MT5_PASSWORD"),
+            server=os.getenv("MT5_SERVER"),
+            timeout=int(os.getenv("MT5_TIMEOUT")),
+            portable=eval(os.getenv("MT5_PORTABLE"))):
+            print(f"{Utils.dateprint()} - La plataforma MT5 se ha lanzado con éxito!")
         else:
-            raise Exception(f"Platform initialization failed {mt5.last_error()}")
+            raise Exception(f"Ha ocurrido un error al inicializar la plataforma MT5: {mt5.last_error()}")
 
     def _live_account_warning(self) -> None:
-
+        """
+        Displays a warning message if a real trading account is detected.
+        Prompts the user to confirm if they want to continue.
+        If the user chooses not to continue, the program is shut down.
+        """
+        # Recuperamos el objeto de tipo AccountInfo
         account_info = mt5.account_info()
-
+        
+        # Comprobar el tipo de cuenta que se ha lanzado
         if account_info.trade_mode == mt5.ACCOUNT_TRADE_MODE_DEMO:
-            print("Account mode DEMO")
+            print("Cuenta de tipo DEMO detectada.")
+        
         elif account_info.trade_mode == mt5.ACCOUNT_TRADE_MODE_REAL:
-            if (
-                not input(
-                    "Waring account type real do you want to continue? (y/n)"
-                ).lower()
-                == "y"
-            ):
+            if not input("ALERTA! Cuenta de tipo REAL detectada. Capital en riesgo. ¿Deseas continuar? (y/n): ").lower() == "y":
                 mt5.shutdown()
-                raise Exception("User cancelled")
+                raise Exception("Usuario ha decidido DETENER el programa.")
         else:
-            print("Account mode CONCURSO")
+            print("Cuenta de tipo CONCURSO detectada.")
 
     def _check_algo_trading_enabled(self) -> None:
+        """
+        Checks if algorithmic trading is enabled.
+
+        Raises:
+            Exception: If algorithmic trading is disabled.
+        """
+        # Vamos a comprobar que el trading algorítmico está activado
         if not mt5.terminal_info().trade_allowed:
-            raise Exception("Trading not allowed")
+            raise Exception("El trading algorítmico está desactivado. Por favor, actívalo MANUALMENTE desde la configuración del terminal MT5.")
 
-    def _add_symbols_to_marketwatch(self, symbols: list[str]) -> None:
-        # Comprobamos si el símbolo ya esta visible en el market watch
-        # Si no lo esta lo añadimos
+    def _add_symbols_to_marketwatch(self, symbols: list) -> None:
+        """
+        Adds symbols to the MarketWatch if they are not already visible.
+
+        Args:
+            symbols (list): List of symbols to be added.
+
+        Returns:
+            None
+        """
+        # 1) Comprobamos si el símbolo ya está visible en el MW
+        # 2) Si no lo está, lo añadiremos
+
         for symbol in symbols:
-            if not mt5.symbol_info(symbol):
-                print(f"Symbol {symbol} not found {mt5.last_error()}")
+            if mt5.symbol_info(symbol) is None:
+                print(f"{Utils.dateprint()} - No se ha podido añadir el símbolo {symbol} al MarketWatch: {mt5.last_error()}")
                 continue
-
-            if not mt5.symbol_info(symbol).visible or mt5.symbol_info(symbol):
+            
+            if not mt5.symbol_info(symbol).visible:
                 if not mt5.symbol_select(symbol, True):
-                    print(f"Symbol {symbol} not found {mt5.last_error()}")
+                    print(f"{Utils.dateprint()} - No se ha podido añadir el símbolo {symbol} al MarketWatch: {mt5.last_error()}")
                 else:
-                    print(f"Symbol {symbol} added to marketwatch")
+                    print(f"{Utils.dateprint()} - Símbolo {symbol} se ha añadido con éxito al MarketWatch!")
             else:
-                print(f"Symbol {symbol} already added to marketwatch")
+                print(f"{Utils.dateprint()} - El símbolo {symbol} ya estaba en el MarketWatch.")
 
     def _print_account_info(self) -> None:
+        """
+        Prints the account information including account ID, trader name, broker, server, leverage, currency, and balance.
+        """
+        # Recuperar un objeto de tipo AccountInfo
+        account_info = mt5.account_info()._asdict()
 
-        account_info: dict[str, str] = mt5.account_info()._asdict()
-
-        print("--------- Account Info ---------")
-        print(f"ID account: {account_info['login']}")
-        print(f"Trader Name: {account_info['name']}")
-        print(f"Broker: {account_info['company']}")
-        print(f"Servidor: {account_info['server']}")
-        print(f"Leverage: {account_info['leverage']}")
-        print(f"Currency account: {account_info['currency']}")
-        print(f"Balance Account {account_info['balance']}")
-        print("--------------------------------")
+        print(f"+------------ Información de la cuenta ------------")
+        print(f"| - ID de cuenta: {account_info['login']}")
+        print(f"| - Nombre trader: {account_info['name']}")
+        print(f"| - Broker: {account_info['company']}")
+        print(f"| - Servidor: {account_info['server']}")
+        print(f"| - Apalancamiento: {account_info['leverage']}")
+        print(f"| - Divisa de la cuenta: {account_info['currency']}")
+        print(f"| - Balance de la cuenta: {account_info['balance']}")
+        print(f"+--------------------------------------------------")

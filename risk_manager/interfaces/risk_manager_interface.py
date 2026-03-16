@@ -1,12 +1,10 @@
+# QUANTDEMY - https://quantdemy.com - Trading con Python y MetaTrader 5: Crea tu Propio Framework
+
 from typing import Protocol
-
-from event.event import SizingEvent
-
+from events.events import SizingEvent
 
 class IRiskManager(Protocol):
-    def assess_order(
-        self,
-        sizing_event: SizingEvent,
-        current_positions_value_acc_ccy: float | None = None,
-        new_position_value_acc_ccy: float | None = None,
-    ) -> float | None: ...
+
+    def assess_order(self, sizing_event: SizingEvent) -> float | None:
+        ...
+

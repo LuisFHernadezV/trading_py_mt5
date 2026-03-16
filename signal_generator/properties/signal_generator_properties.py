@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+# QUANTDEMY - https://quantdemy.com - Trading con Python y MetaTrader 5: Crea tu Propio Framework
 
+from pydantic import BaseModel
 
 class BaseSignalProps(BaseModel):
     pass
-
 
 class MACrossoverProps(BaseSignalProps):
     """
@@ -14,11 +14,9 @@ class MACrossoverProps(BaseSignalProps):
         fast_period (int): The period for the fast moving average.
         slow_period (int): The period for the slow moving average.
     """
-
     timeframe: str
     fast_period: int
     slow_period: int
-
 
 class RSIProps(BaseSignalProps):
     timeframe: str
@@ -27,4 +25,3 @@ class RSIProps(BaseSignalProps):
     rsi_lower: float
     sl_points: int
     tp_points: int
-

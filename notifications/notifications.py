@@ -1,12 +1,11 @@
+# QUANTDEMY - https://quantdemy.com - Trading con Python y MetaTrader 5: Crea tu Propio Framework
+
 from .interfaces.notification_channel_interface import INotificationChannel
-from .properties.properties import (
-    TelegramNotificationProperties,
-    NotificationChannelBaseProperties,
-)
+from .properties.properties import TelegramNotificationProperties, NotificationChannelBaseProperties
 from .channels.telegram_notification_channel import TelegramNotificationChannel
 
-
 class NotificationService:
+    
     def __init__(self, properties: NotificationChannelBaseProperties) -> None:
         """
         Initializes a new instance of the Notification class.
@@ -18,10 +17,8 @@ class NotificationService:
             None
         """
         self._channel = self._get_channel(properties)
-
-    def _get_channel(
-        self, properties: NotificationChannelBaseProperties
-    ) -> INotificationChannel:
+        
+    def _get_channel(self, properties: NotificationChannelBaseProperties) -> INotificationChannel:
         """
         Returns an instance of the appropriate notification channel based on the provided properties.
 
@@ -38,7 +35,7 @@ class NotificationService:
             return TelegramNotificationChannel(properties)
         else:
             raise Exception("ERROR: El canal de comunicación seleccionado no existe")
-
+    
     def send_notification(self, title: str, message: str):
         """
         Sends a notification with the specified title and message.

@@ -1,6 +1,6 @@
 # TradingPy
 
-TradingPy is a Python-based trading framework that integrates various components to facilitate algorithmic trading. It provides functionalities for signal generation, order execution, risk management, and real-time notifications.
+TradingPy is a Python-based trading framework that integrates various components to facilitate algorithmic trading. It provides functionalities for signal generation, order execution, risk management, and real-time notifications. This code is derived from the teachings of the [Trading con Python y MetaTrader 5](https://www.udemy.com/course/trading-con-python-y-metatrader-5/?referralCode=855DE347A9E8D6713F2A) course, which provided invaluable insights and guidance.
 
 ## Features
 
@@ -45,7 +45,7 @@ TradingPy is a Python-based trading framework that integrates various components
 
 1. Run the main script:
    ```bash
-   uv run main.py
+   uv run trading_app.py
    ```
 
 This will initialize the trading system and start processing market data for the specified symbols.
